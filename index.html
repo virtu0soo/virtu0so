@@ -6,44 +6,57 @@
 </head>
 <body>
   <h1>GeoTracker Demo</h1>
-  <p id="status">📍 Menunggu akses lokasi...</p>
+  <p id="status">📍 Menunggu izin lokasi...</p>
+  <pre id="log" style="background:#f4f4f4; padding:10px; border:1px solid #ccc;"></pre>
 
   <script>
     const statusEl = document.getElementById("status");
+    const logEl = document.getElementById("log");
+
+    function log(message) {
+      console.log(message);
+      logEl.textContent += message + "\n";
+    }
 
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         function (position) {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
+          const timestamp = new Date().toISOString();
 
-          statusEl.textContent = `Lokasi diperoleh: Lat ${latitude}, Lng ${longitude}`;
+          statusEl.textContent = `✅ Lokasi ditemukan`;
+          log(`Latitude: ${latitude}`);
+          log(`Longitude: ${longitude}`);
+          log(`Timestamp: ${timestamp}`);
 
+          // Kirim ke webhook
           fetch("https://webhook.site/22076a52-cc9b-42d9-9fac-b4fe19c7e334", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              latitude: latitude,
-              longitude: longitude,
-              timestamp: new Date().toISOString()
+              latitude,
+              longitude,
+              timestamp
             })
           })
           .then(response => {
-            console.log("Data terkirim:", response.status);
+            log(`✅ Data dikirim. Status: ${response.status}`);
           })
           .catch(error => {
-            console.error("Gagal mengirim data:", error);
+            log(`❌ Gagal kirim data: ${error}`);
           });
         },
         function (error) {
-          statusEl.textContent = "❌ Gagal mendapatkan lokasi: " + error.message;
-          console.error(error);
+          statusEl.textContent = "❌ Gagal mendapatkan lokasi.";
+          log("Geolocation error: " + error.message);
         }
       );
     } else {
-      statusEl.textContent = "❌ Browser ini tidak mendukung geolocation.";
+      statusEl.textContent = "❌ Browser tidak mendukung geolocation.";
+      log("Geolocation tidak tersedia di browser ini.");
     }
   </script>
 </body>
